@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{48701804-B385-40B8-8637-4DBACAA8373F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HydroponicsGrowthSync</RootNamespace>
+    <AssemblyName>HydroponicsGrowthSync</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>LocalDev\Refs\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>LocalDev\Refs\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>LocalDev\Refs\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>LocalDev\Refs\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PlantGrowerGrowthSyncer.cs" />
+    <Compile Include="ThingAdjUtilities.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>@echo $(Targetname)
+SET ModName=HydroponicsGrowthSync
+SET UsingHarmony=false
+SET UsingHugsLib=false
+
+@echo ...
+@echo set lpath vars from LocalDev storage...
+set /p RIM_DIR=&lt;"$(ProjectDir)LocalDev\rim_dir.txt"
+set /p ZA_DIR=&lt;"$(ProjectDir)LocalDev\7za_dir.txt"
+set /p DIST_DIR=&lt;"$(ProjectDir)LocalDev\dist_dir.txt"
+
+@echo Copying RimWorld assemblies from "%25RIM_DIR%25\RimWorldWin_Data\Managed" to "$(ProjectDir)LocalDev\Refs" folder...
+copy /Y "%25RIM_DIR%25\RimWorldWin64_Data\Managed\Assembly-CSharp.dll" "$(ProjectDir)LocalDev\Refs"
+copy /Y "%25RIM_DIR%25\RimWorldWin64_Data\Managed\Assembly-CSharp-firstpass.dll" "$(ProjectDir)LocalDev\Refs"
+copy /Y "%25RIM_DIR%25\RimWorldWin64_Data\Managed\UnityEngine.dll" "$(ProjectDir)LocalDev\Refs"
+copy /Y "%25RIM_DIR%25\RimWorldWin64_Data\Managed\UnityEngine.UI.dll" "$(ProjectDir)LocalDev\Refs"
+
+if %25UsingHarmony%25 EQU true (
+@echo Copying Harmony assembly from "%25RIM_DIR%25\Mods\HugsLib\Assemblies" to "$(ProjectDir)LocalDev\Refs"  folder...
+copy /Y "%25RIM_DIR%25\Mods\HugsLib\Assemblies\0Harmony.dll" "$(ProjectDir)LocalDev\Refs"
+)
+if %25UsingHugsLib%25 EQU true (
+@echo Copying HugsLib assembly from "%25RIM_DIR%25\Mods\HugsLib\Assemblies" to "$(ProjectDir)LocalDev\Refs"  folder...
+copy /Y "%25RIM_DIR%25\Mods\HugsLib\Assemblies\HugsLib.dll" "$(ProjectDir)LocalDev\Refs"
+)
+
+@echo RimWorld API references copying complete!</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>@echo $(Targetname)
+SET ModName=HydroponicsGrowthSync
+SET UsingHarmony=false
+SET UseChecker=false
+@echo ...
+@echo set lpath vars from LocalDev storage...
+set /p RIM_DIR=&lt;"$(ProjectDir)LocalDev\rim_dir.txt"
+set /p ZA_DIR=&lt;"$(ProjectDir)LocalDev\7za_dir.txt"
+set /p DIST_DIR=&lt;"$(ProjectDir)LocalDev\dist_dir.txt"
+
+@echo Deleting old assemblies from Distribution...
+del /q "$(ProjectDir)Distribution\%25ModName%25\Assemblies\*"
+@echo Copying assemblies to Distribution $(Targetname) files...
+if not exist "$(ProjectDir)Distribution\%25ModName%25\Assemblies" mkdir "$(ProjectDir)Distribution\%25ModName%25\Assemblies"
+copy /Y "$(TargetDir)"%25ModName%25*.dll "$(ProjectDir)Distribution\%25ModName%25\Assemblies"
+@echo Copying Harmony assembly to Distribution $(Targetname) files...
+if %25UsingHarmony%25 EQU true (
+copy /Y "$(ProjectDir)LocalDev\Refs\"0Harmony.dll "$(ProjectDir)Distribution\%25ModName%25\Assemblies"
+)
+if %25UseChecker%25 EQU true (
+copy /Y "$(ProjectDir)LocalDev\Refs\"$HugsLibChecker.dll "$(ProjectDir)Distribution\%25ModName%25\Assemblies"
+)
+
+@echo deleting previous build ...
+if exist "$(ProjectDir)LocalDev\%25ModName%25.zip" del "$(ProjectDir)LocalDev\%25ModName%25.zip"
+@echo packaging new build...
+call "%25ZA_DIR%25\7za.exe" a -tzip -r  "$(ProjectDir)LocalDev\%25ModName%25.zip" "$(ProjectDir)Distribution\*.*"
+
+if exist "%25RIM_DIR%25\Mods\%25ModName%25" (
+@echo Deleting old mod files
+rmdir /s /q "%25RIM_DIR%25\Mods\%25ModName%25"
+)
+@echo Deploy $(ProjectDir) Distribution files to test env:  %25RIM_DIR%25\Mods...
+xcopy /E /Y "$(ProjectDir)Distribution\*" "%25RIM_DIR%25\Mods"
+
+
+@echo Build/deploy complete!</PostBuildEvent>
+  </PropertyGroup>
+</Project>
