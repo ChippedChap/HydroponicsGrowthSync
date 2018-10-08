@@ -52,11 +52,12 @@ namespace HydroponicsGrowthSync
 			plantGrowerGroups.Clear();
 			IEnumerable<Thing> allPlantGrowers = map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).Where(x => x is Building_PlantGrower);
 			HashSet<Thing> alreadyGrouped = new HashSet<Thing>();
+            HashSet<Thing> queue = new HashSet<Thing>();
 			foreach (Thing grower in allPlantGrowers)
 			{
 				if (alreadyGrouped.Contains(grower)) continue;
 				List<Thing> growerGroup = new List<Thing>();
-				HashSet<Thing> queue = new HashSet<Thing>() { grower };
+                queue.Add(grower);
 				while (queue.Count > 0)
 				{
 					alreadyGrouped.AddRange(queue);
